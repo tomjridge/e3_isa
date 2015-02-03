@@ -1,0 +1,13 @@
+digraph e3_formalization {
+
+  E3_core_types;
+
+  E3 -> E3_core_types;
+  E3_spec -> E3_core_types;
+ 
+
+  E3_sound -> E3_spec;
+  E3_sound -> E3; 
+
+
+}

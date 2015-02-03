@@ -1,0 +1,17 @@
+* E3 isabelle verification
+
+  - based on OCaml code at https://github.com/tomjridge/e3
+
+  - for dependencies between .thy files, see e3.dot (e3.svg) file
+    - note that E3_prelude.thy is a dependency of all files
+
+  - description of .thy files
+    - E3_prelude.thy - common defns
+    - E3_abstract_types - axiomatically declared basic types (nt, tm etc, no sets or maps)
+    - E3_concrete_types - basic types with standard defns
+    - E3 
+      - record of operations over basic types, and declarations of record types for sets
+      - definitions of core code, including "earley" function
+      - all definitions essentially "parametric" (so why depend on E3_concrete_types?)
+    - E3_impl - specialization of E3 code to E3_concrete_types
+    - E3_spec - specification of Earley's algorithm at a high level
