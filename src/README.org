@@ -7,11 +7,10 @@
 
   - description of .thy files
     - E3_prelude.thy - common defns
-    - E3_abstract_types - axiomatically declared basic types (nt, tm etc, no sets or maps)
-    - E3_concrete_types - basic types with standard defns
+    - E3_core_types.thy - axiomatically declared basic types, and
+      parametric sets and maps, with standard implementations of these
+      parametric types
     - E3 
-      - record of operations over basic types, and declarations of record types for sets
-      - definitions of core code, including "earley" function
-      - all definitions essentially "parametric" (so why depend on E3_concrete_types?)
-    - E3_impl - specialization of E3 code to E3_concrete_types
+      - the code for the earley parser, upto defn of loop2, using parametric types
     - E3_spec - specification of Earley's algorithm at a high level
+    - E3_sound - initial statement of invariant (incomplete, needs extending)
