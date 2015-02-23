@@ -32,8 +32,55 @@ definition loop2_inv :: "'string => 'string ct_params => ty_impl_loop2 => bool" 
 
     True" (* should be some relation from ty_impl loop2 to E3_spec derivable *)
 
-lemma sound_init: "loop2_inv s ps (init_state s ps)"
-  oops
+lemma t1: "blocked5 (init_state s ps) i = {}"
+  apply(unfold init_state_def)
+  apply(simp add: impl_mbk_def)
+  apply(simp add: rev_apply_def)
+  apply(case_tac " ct_nt_items_for_nt ps (ct_nt0 ps) (s, 0, 0)")
+  apply(simp)
+  apply(simp)
+  done
+  
+lemma t2: "complete5 (init_state s ps) i = {}"
+  apply(unfold init_state_def)
+  apply(simp add: impl_mck_def)
+  apply(simp add: rev_apply_def)
+  apply(case_tac " ct_nt_items_for_nt ps (ct_nt0 ps) (s, 0, 0)")
+  apply(simp)
+  apply(simp)
+  done  
+  
+lemma t3: "todo_done5 (init_state s ps) = NTITM ` set (ct_nt_items_for_nt ps (ct_nt0 ps) (s, 0, 0))  "  
+  apply(unfold init_state_def)
+  apply(simp add: impl_mck_def)
+  apply(simp add: rev_apply_def)
+  apply(case_tac " ct_nt_items_for_nt ps (ct_nt0 ps) (s, 0, 0)")
+  apply(simp)
+  apply(simp)
+  done  
+
+  
+definition wf_ct_nt_items_for_nt :: "(nt => 'string substring => nt_item list) \<Rightarrow> bool"
+where "wf_ct_nt_items_for_nt f \<equiv> \<forall>n ntitem sub. \<exists>s i j a i' j'. ntitem \<in> set (f n sub) \<longrightarrow> sub = (s, i, j) \<and> 
+(ntitem = (n, [], a, i', j')) \<and> i' \<le> i \<and> j' \<le> j \<and> i' \<le> j'"  
+
+lemma sound_init: "wf_ct_nt_items_for_nt (ct_nt_items_for_nt ps) \<Longrightarrow> loop2_inv s ps (init_state s ps)"
+  apply(unfold loop2_inv_def)
+  apply(simp add: rev_apply_def t1 t2 t3)
+  apply(induct "ct_nt_items_for_nt ps (ct_nt0 ps) (s, 0, 0)")
+  apply(clarsimp)
+  apply(unfold derivable_items_def)
+  apply(clarsimp)
+  apply(unfold derivable_def)
+  apply(simp)
+  apply(unfold init_state_def)
+  apply(simp add: rev_apply_def)
+  apply(fold init_state_def)
+  apply(clarsimp)
+  apply(unfold wf_ct_nt_items_for_nt_def)
+  apply(auto)
+  apply(unfold init_state_def)
+  apply(simp add: rev_apply_def Let_def)
 
 lemma sound: "loop2_inv s ps s0 ==> loop2 (ctxt::'string ty_impl_ctxt) s0 = s1 ==> loop2_inv s ps s1"
   oops
