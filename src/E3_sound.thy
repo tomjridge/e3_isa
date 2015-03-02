@@ -58,33 +58,43 @@ lemma t3: "todo_done5 (init_state s ps) = NTITM ` set (ct_nt_items_for_nt ps (ct
   apply(simp)
   apply(simp)
   done  
-
   
 definition wf_ct_nt_items_for_nt :: "(nt => 'string substring => nt_item list) \<Rightarrow> bool"
-where "wf_ct_nt_items_for_nt f \<equiv> \<forall>n ntitem sub. \<exists>s i j a i' j'. ntitem \<in> set (f n sub) \<longrightarrow> sub = (s, i, j) \<and> 
-(ntitem = (n, [], a, i', j')) \<and> i' \<le> i \<and> j' \<le> j \<and> i' \<le> j'"  
+where "wf_ct_nt_items_for_nt f \<equiv> \<forall>n ntitem s i j as. ntitem \<in> set (f n (s, i, j)) \<longrightarrow>
+(ntitem = (n, [], (NT n) # as, i, i))"  
+
+definition wf_item_ops :: "'string ty_ops \<Rightarrow> bool"
+where "wf_item_ops tyops \<equiv> \<forall>sym i j. sym_dot_i9 tyops (sym, i, j) = i \<and> sym_dot_j9 tyops (sym, i, j) = j \<and> sym6 tyops (sym, i, j) = sym"
 
 lemma sound_init: "wf_ct_nt_items_for_nt (ct_nt_items_for_nt ps) \<Longrightarrow> loop2_inv s ps (init_state s ps)"
   apply(unfold loop2_inv_def)
-  apply(simp add: rev_apply_def t1 t2 t3)
   apply(induct "ct_nt_items_for_nt ps (ct_nt0 ps) (s, 0, 0)")
-  apply(clarsimp)
-  apply(unfold derivable_items_def)
-  apply(clarsimp)
-  apply(unfold derivable_def)
-  apply(simp)
-  apply(unfold init_state_def)
-  apply(simp add: rev_apply_def)
-  apply(fold init_state_def)
-  apply(clarsimp)
-  apply(unfold wf_ct_nt_items_for_nt_def)
-  apply(auto)
-  apply(unfold init_state_def)
+  apply(simp add: rev_apply_def t1 t2 t3)
+  apply(unfold init_state_def derivable_items_def)
+  apply(simp add: rev_apply_def t1 t2 t3 derivable_items_def)
+  apply(simp add: rev_apply_def t1 t2 t3 wf_ct_nt_items_for_nt_def init_state_def Let_def image_def derivable_items_def impl_mbk_def impl_mck_def )
+  apply(clarify)
+by (metis (erased, hide_lams) not_Cons_self2)
+  
+
+lemma sound: "wf_ct_nt_items_for_nt (ct_nt_items_for_nt ps) \<Longrightarrow> wf_item_ops (item_ops5 ctxt) \<Longrightarrow> impl_maps (maps ctxt) \<Longrightarrow> loop2_inv s ps s0 ==> loop2 (ctxt::'string ty_impl_ctxt) s0 = s1 ==> loop2_inv s ps s1"
+  apply(unfold loop2_def loop2_inv_def)
   apply(simp add: rev_apply_def Let_def)
+  apply(unfold pop_todo_def)
+  apply(case_tac "todo5 s0")
+  apply(simp_all)
+  apply(case_tac "dest_item (item_ops5 ctxt) a")
+  apply(simp)
+  apply(case_tac  "b2_nil (item_ops5 ctxt) prod")
+  apply(simp)
+  apply(case_tac "mk_sym_coord (item_ops5 ctxt) (nt2 (item_ops5 ctxt) prod, nt_dot_i9 (item_ops5 ctxt) prod, nt_dot_j9 (item_ops5 ctxt) prod)")
+  apply(simp)
+  apply(unfold wf_item_ops_def)
+  apply(simp add: rev_apply_def Let_def)
+  
 
-lemma sound: "loop2_inv s ps s0 ==> loop2 (ctxt::'string ty_impl_ctxt) s0 = s1 ==> loop2_inv s ps s1"
-  oops
-
-lemma complete: "True (* FIXME *)"
+  
+  
+  lemma complete: "True (* FIXME *)"
 
 end
