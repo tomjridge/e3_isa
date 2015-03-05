@@ -64,7 +64,16 @@ where "wf_ct_nt_items_for_nt f \<equiv> \<forall>n ntitem s i j as. ntitem \<in>
 (ntitem = (n, [], (NT n) # as, i, i))"  
 
 definition wf_item_ops :: "'string ty_ops \<Rightarrow> bool"
-where "wf_item_ops tyops \<equiv> \<forall>sym i j. sym_dot_i9 tyops (sym, i, j) = i \<and> sym_dot_j9 tyops (sym, i, j) = j \<and> sym6 tyops (sym, i, j) = sym"
+where "wf_item_ops tyops \<equiv> \<forall>sym i j nt as bs j'. sym_dot_i9 tyops (sym, i, j) = i \<and> sym_dot_j9 tyops (sym, i, j) = j \<and> sym6 tyops (sym, i, j) = sym \<and> with_j9 tyops (nt,as,bs,i,j) j'= (nt,as,bs,i,j') \<and> shift_a2_b2_c2 tyops (nt,as,bs,i,j) = (nt,(hd bs) # as, tl bs, i, j)"
+
+definition impl_maps :: "'string ty_impl_ctxt \<Rightarrow> bool"
+where "impl_maps ctxt \<equiv> maps ctxt = impl_ctxt_map"
+
+lemma t: "wf_item_ops (item_ops5 ctxt) \<Longrightarrow> impl_maps ctxt \<Longrightarrow> (sym1, as, bs, i, j) \<in> blocked5 s0 k \<Longrightarrow> NTITM (sym1, (hd bs) # as, tl bs, i, j) \<in> (set (todo5 (Finite_Set.fold (\<lambda>bitm. \<lambda>x. E3.cut ctxt bitm citm x) (s0\<lparr>todo5 := list\<rparr>) (blocked5 s0 k))))  "
+apply(unfold E3.cut_def wf_item_ops_def impl_maps_def)
+apply(simp add: Let_def rev_apply_def)
+apply(unfold impl_ctxt_map_def add_todo_def)
+
 
 lemma sound_init: "wf_ct_nt_items_for_nt (ct_nt_items_for_nt ps) \<Longrightarrow> loop2_inv s ps (init_state s ps)"
   apply(unfold loop2_inv_def)
@@ -76,8 +85,7 @@ lemma sound_init: "wf_ct_nt_items_for_nt (ct_nt_items_for_nt ps) \<Longrightarro
   apply(clarify)
 by (metis (erased, hide_lams) not_Cons_self2)
   
-
-lemma sound: "wf_ct_nt_items_for_nt (ct_nt_items_for_nt ps) \<Longrightarrow> wf_item_ops (item_ops5 ctxt) \<Longrightarrow> impl_maps (maps ctxt) \<Longrightarrow> loop2_inv s ps s0 ==> loop2 (ctxt::'string ty_impl_ctxt) s0 = s1 ==> loop2_inv s ps s1"
+lemma sound: "wf_ct_nt_items_for_nt (ct_nt_items_for_nt ps) \<Longrightarrow> wf_item_ops (item_ops5 ctxt) \<Longrightarrow> impl_maps ctxt \<Longrightarrow> loop2_inv s ps s0 ==> loop2 (ctxt::'string ty_impl_ctxt) s0 = s1 ==> loop2_inv s ps s1"
   apply(unfold loop2_def loop2_inv_def)
   apply(simp add: rev_apply_def Let_def)
   apply(unfold pop_todo_def)
@@ -90,10 +98,17 @@ lemma sound: "wf_ct_nt_items_for_nt (ct_nt_items_for_nt ps) \<Longrightarrow> wf
   apply(case_tac "mk_sym_coord (item_ops5 ctxt) (nt2 (item_ops5 ctxt) prod, nt_dot_i9 (item_ops5 ctxt) prod, nt_dot_j9 (item_ops5 ctxt) prod)")
   apply(simp)
   apply(unfold wf_item_ops_def)
-  apply(simp add: rev_apply_def Let_def)
-  
+  apply(simp add: rev_apply_def)
+  apply(unfold impl_maps_def)
+  apply(unfold impl_ctxt_map_def)
+  apply(simp)
+  apply(unfold impl_mbk_def)
+  apply(simp)
+  apply(unfold impl_mck_def)
+  apply(simp)
+  apply(unfold update_oracle_def)
+  apply(clarify)
 
-  
   
   lemma complete: "True (* FIXME *)"
 
